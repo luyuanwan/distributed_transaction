@@ -44,12 +44,16 @@ public class OrderApplication {
 	private TransactionMQProducer producer = null;
 
 
-
+	/**
+	 * 插入订单信息到mysql
+	 *
+	 * @param uuid
+	 * @throws Exception
+	 */
 	@Transactional
-	public void doMysql(String uuid) throws Exception{
+	public void insertOrderInMysql(String uuid) throws Exception{
 		//order
 		jdbcTemplate.update("insert into `order`(uuid) values(?)",uuid);
-
 		//order_unique
 		jdbcTemplate.update("insert into order_unique(`uuid`) values(?)",uuid);
 	}
@@ -69,8 +73,7 @@ public class OrderApplication {
 				try {
 					String uuid = new String(msg.getBody(), RemotingHelper.DEFAULT_CHARSET);
 
-					doMysql(uuid);
-
+					insertOrderInMysql(uuid);
 					return LocalTransactionState .COMMIT_MESSAGE;
 				}catch (Exception ex){
 					ex.printStackTrace();
@@ -107,25 +110,25 @@ public class OrderApplication {
 	}
 
 
-	public static void main(String[] args) {
-		SpringApplication.run(OrderApplication.class, args);
-	}
-
-	@GetMapping("/start")
-	public String start(){
+	/**
+	 * 发送下游的 库存 消息
+	 */
+	public void send(String uuid) {
 		try {
-			//发消息 库存
-		    String body = UUID.randomUUID().toString();
-		    Message message = new Message(topic, body.getBytes(RemotingHelper.DEFAULT_CHARSET));
-		    message.setKeys(body);
-			TransactionSendResult result = producer.sendMessageInTransaction(message,new HashMap<>());
+			//发消息 下单
+			String body = uuid;
+			Message message = new Message(topic, body.getBytes(RemotingHelper.DEFAULT_CHARSET));
+			message.setKeys(body);
+			TransactionSendResult result = producer.sendMessageInTransaction(message, new HashMap<>());
 			System.out.println("库存消息" + body + "发出，结果是 + " + result);
 		} catch (MQClientException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		//mysql 事务
-		//确认消息 库存
-		return "OK";
 	}
 
+
+
+	public static void main(String[] args) {
+		SpringApplication.run(OrderApplication.class, args);
+	}
 }

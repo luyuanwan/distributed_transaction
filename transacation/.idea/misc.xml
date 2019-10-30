@@ -77,6 +77,7 @@
         <option value="$PROJECT_DIR$/order/pom.xml" />
         <option value="$PROJECT_DIR$/stock/pom.xml" />
         <option value="$PROJECT_DIR$/rollback/pom.xml" />
+        <option value="$PROJECT_DIR$/risk/pom.xml" />
       </list>
     </option>
   </component>

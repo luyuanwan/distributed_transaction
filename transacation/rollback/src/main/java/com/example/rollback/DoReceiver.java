@@ -27,7 +27,7 @@ public class DoReceiver {
     @Transactional
     public void doMysql(String uuid,String stage) throws Exception{
 
-        System.out.println(stage + "---------------------" + uuid);//order
+//        System.out.println(stage + "---------------------" + uuid);//order
 
             try {
                 jdbcTemplate.update("insert into rollback_unique(`uuid`) values(?)",uuid);
